@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:myhoneypott/constant/constant.dart';
+import 'package:myhoneypott/constant/user_id.dart';
 import 'package:myhoneypott/models/expenses_model.dart';
 import 'package:myhoneypott/models/user.dart';
 
@@ -10,7 +11,7 @@ import '../models/api_response.dart';
 // get all Expense
 Future<List<ExpenseData>> fetchExpenses() async {
   String token = await ApiResponse().getToken();
-  final response = await http.get(Uri.parse(expenseURL), headers: {
+  final response = await http.get(Uri.parse(dashboardURL), headers: {
     'Accept': 'application/json',
     'Authorization': 'Bearer $token'
   });
@@ -33,12 +34,13 @@ Future<List<ExpenseData>> fetchExpenses() async {
 
 // get all Expense
 Future<ExpensesModel> fetchExpense() async {
-  String token = await ApiResponse().getToken();
+  String token = UserID.token;
 
-  final response = await http.get(Uri.parse(expenseURL), headers: {
+  final response = await http.get(Uri.parse(dashboardURL), headers: {
     'Accept': 'application/json',
     'Authorization': 'Bearer $token'
   });
+
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
@@ -50,23 +52,33 @@ Future<ExpensesModel> fetchExpense() async {
 
 // get all Expense all month dashboard table
 Future<List<ExpensesAllMonth>> fetchMonthExpense() async {
-  String token = await ApiResponse().getToken();
-  final response = await http.get(Uri.parse(expenseURL), headers: {
+  print("Fetch monthly expenses");
+  String token = await UserID.token;
+  print("token user: " + token);
+  final response = await http.get(Uri.parse(dashboardURL), headers: {
     'Accept': 'application/json',
     'Authorization': 'Bearer $token'
   });
+  print("Response>>>>>>" + response.body);
 
   var expenses = <ExpensesAllMonth>[];
+
   if (response.statusCode == 200) {
+    Map<String, dynamic> responsedata = jsonDecode(response.body);
+
     // If the server did return a 200 OK response,
     // then parse the JSON.
     expenses = (json.decode(response.body)['expensesAllMonth'] as List)
         .map((data) => ExpensesAllMonth.fromJson(data))
         .toList();
+    print("=====>>>>>>>>>>>>>");
+    print(expenses);
     return expenses;
     // we get list of posts, so we need to map each item to post model
     //apiResponse.data as List<dynamic>;
   } else {
+    print("Failed to load");
+    print("===================>>>>>>>>>>>>>>");
     // If the server did not return a 200 OK response,
     // then throw an exception.
     throw Exception('Failed to load expenseData');

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:myhoneypott/constant/apis_expense.dart';
 import 'package:myhoneypott/constant/app_text_styles.dart';
+import 'package:myhoneypott/models/api_response.dart';
 import 'package:myhoneypott/widget/custom_button.dart';
 
 import '../../../constant/app_colors.dart';
@@ -21,9 +22,9 @@ class _BudgetDialogState extends State<BudgetDialog> {
   TextEditingController controller = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
-  var token = ExpenseCont.token;
   bool loading = false;
   smartBudget() async {
+    var token = await ApiResponse().getToken();
     var response = await http.post(
         Uri.parse("https://www.myhoneypot.app/api/budget?income="),
         headers: {

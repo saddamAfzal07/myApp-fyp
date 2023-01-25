@@ -28,7 +28,7 @@ class CategoryDetails {
 
   CategoryDetails({this.id, this.description});
 
-  CategoryDetails.fromJson(Map<String, dynamic> json) {
+  CategoryDetails.fromJson(Map<dynamic, dynamic> json) {
     id = json['id'];
     description = json['description'];
   }

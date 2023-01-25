@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:myhoneypott/constant/app_text_styles.dart';
+import 'package:myhoneypott/screens/auth/login.dart';
 import 'package:myhoneypott/widget/custom_button.dart';
 import 'package:myhoneypott/widget/custom_field.dart';
 
 import '../../../constant/app_colors.dart';
+import 'package:http/http.dart' as http;
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -15,6 +19,29 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   TextEditingController emailController = TextEditingController();
+  enterMail() async {
+    var response = await http.post(
+      Uri.parse(
+          "https://www.myhoneypot.app/api/forget-password/${emailController.text}"),
+      // body: {
+      //   'email': emailController.text,
+      // }
+    );
+    if (response.statusCode == 200) {
+      print("Send Mail");
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email is sent for Reset Password')));
+
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const Login()));
+    } else if (response.statusCode == 404) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Email does not Exist')));
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Something went wrong')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +108,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           /// Reset Password button
           SizedBox(height: height * 0.024),
           CustomButton(
-            onTap: () {},
+            onTap: () {
+              if (emailController.text.isNotEmpty) {
+                enterMail();
+              } else {
+                print("empty");
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Email is Required')));
+              }
+            },
             btnText: 'Reset Password',
           ),
         ],

@@ -38,9 +38,6 @@ class SignupScreenState extends State<SignupScreen> {
       // print('i should be here because something something');
       // print(User);
       // _saveAndRedirectToHome(response.data as User);
-      
-
-
       showDialog(
           barrierDismissible: false,
           context: context,

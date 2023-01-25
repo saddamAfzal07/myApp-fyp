@@ -9,7 +9,10 @@ import 'package:swipeable_tile/swipeable_tile.dart';
 import '../constant/app_colors.dart';
 
 class CustomMonthDropDown extends StatefulWidget {
-  final List<ExpensesAllMonth> monthExpenses;
+  final List<
+      dynamic
+      // ExpensesAllMonth
+      > monthExpenses;
   final List<String> uniqueMonths;
   final bool flag;
 

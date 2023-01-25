@@ -2,23 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:myhoneypott/constant/app_colors.dart';
 import 'package:myhoneypott/constant/app_text_styles.dart';
+import 'package:myhoneypott/constant/user_id.dart';
+import 'package:myhoneypott/models/api_response.dart';
 import 'package:myhoneypott/models/category_model.dart';
 import 'package:myhoneypott/models/expenses_model.dart';
 import 'package:myhoneypott/services/category_service.dart';
 import 'package:myhoneypott/widget/custom_button.dart';
 import 'package:myhoneypott/widget/custom_field.dart';
+import 'package:http/http.dart' as http;
 
-class EditExpenseScreen extends StatefulWidget {
-  final ExpensesAllMonth monthlyExpense;
+class EditExpense extends StatefulWidget {
+  final monthlyExpense;
 
-  const EditExpenseScreen({Key? key, required this.monthlyExpense})
-      : super(key: key);
+  String id, description, totalAmount, date, category;
+
+  EditExpense({
+    Key? key,
+    required this.monthlyExpense,
+    required this.id,
+    required this.description,
+    required this.totalAmount,
+    required this.date,
+    required this.category,
+  }) : super(key: key);
 
   @override
-  State<EditExpenseScreen> createState() => _EditExpenseScreenState();
+  State<EditExpense> createState() => _EditExpenseState();
 }
 
-class _EditExpenseScreenState extends State<EditExpenseScreen> {
+class _EditExpenseState extends State<EditExpense> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController totalController = TextEditingController();
@@ -32,19 +44,22 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
 
   @override
   void initState() {
-    descriptionController =
-        TextEditingController(text: widget.monthlyExpense.description);
-    dateController =
-        TextEditingController(text: widget.monthlyExpense.formatted_date);
-    totalController =
-        TextEditingController(text: widget.monthlyExpense.total.toString());
-    categoryController = TextEditingController(
-        text: widget.monthlyExpense.category!.description!);
+    descriptionController.text = widget.description;
 
-    getCategories();
+    dateController.text = widget.date;
 
-    value = widget.monthlyExpense.category!.description;
+    totalController.text = widget.totalAmount;
+
+    value = widget.category;
+
     super.initState();
+    print(value);
+    getCategories();
+    print(value);
+    print(totalController.text);
+    print(totalController.text);
+    print(dateController.text);
+    print(descriptionController.text);
   }
 
   getCategories() async {
@@ -69,6 +84,32 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
           ),
         ),
       );
+  updateExpenses() async {
+    String token = await UserID.token;
+    var response = await http.patch(
+        Uri.parse("https://www.myhoneypot.app/api/expense/${widget.id}"),
+        body: {
+          'description': descriptionController.text,
+          'date': dateController.text,
+          'total': totalController.text,
+          'category': value.toString()
+        },
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Charset': 'utf-8'
+        });
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      print("success");
+
+      // Navigator.pushReplacement(
+      //     context, MaterialPageRoute(builder: (context) => BottomNavBar()));
+      // Navigator.pop(context);
+    } else {
+      print("Error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +122,7 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
         elevation: 0.0,
         leading: IconButton(
           onPressed: () {
-            Get.back();
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back_ios_rounded,
@@ -201,7 +242,9 @@ class _EditExpenseScreenState extends State<EditExpenseScreen> {
                   /// Save button
                   SizedBox(height: height * 0.024),
                   CustomButton(
-                    onTap: () {},
+                    onTap: () {
+                      updateExpenses();
+                    },
                     btnText: 'Save',
                   ),
                 ],

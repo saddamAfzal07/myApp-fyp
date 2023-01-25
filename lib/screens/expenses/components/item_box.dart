@@ -104,7 +104,10 @@ class ItemBox extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
-              Get.to(EditExpenseScreen(monthlyExpense: monthlyExpense));
+              // Get.to(EditExpenseScreen(
+              //   monthlyExpense: monthlyExpense,
+              //   id: monthlyExpense.id.toString(),
+              // ));
             },
             icon: SvgPicture.asset(AppIcons.editIcon),
           ),

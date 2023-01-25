@@ -10,44 +10,45 @@ import 'package:myhoneypott/screens/auth/account_verification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // login
-Future<dynamic> login(context, String email, String password) async {
-  ApiResponse apiResponse = ApiResponse();
+// Future<dynamic> login(context, String email, String password) async {
+//   ApiResponse apiResponse = ApiResponse();
 
-  // try {
-  final response = await http.post(
-      Uri.parse("https://www.myhoneypot.app/api/login"),
-      headers: {'Accept': 'application/json'},
-      body: {'email': email, 'password': password});
-  // print(email + " " + password);
-  // print(response.body);
+//   // try {
+//   final response = await http.post(
+//       Uri.parse("https://www.myhoneypot.app/api/login"),
+//       headers: {'Accept': 'application/json', 'Charset': 'utf-8'},
+//       body: {'email': email, 'password': password});
+//   // print(email + " " + password);
+//   // print(response.body);
 
-  if (response.statusCode == 200) {
-    apiResponse.data = User.fromJson(jsonDecode(response.body));
-    apiResponse.storeToken(jsonDecode(response.body)['token']);
-    return apiResponse;
-  } else if (response.statusCode == 422) {
-    final errors = jsonDecode(response.body)['errors'];
+//   if (response.statusCode == 200) {
+//     print("Enter");
+//     apiResponse.data = User.fromJson(jsonDecode(response.body));
+//     apiResponse.storeToken(jsonDecode(response.body)['token']);
+//     return apiResponse;
+//   } else if (response.statusCode == 422) {
+//     final errors = jsonDecode(response.body)['errors'];
 
-    apiResponse.error = errors[errors.keys.elementAt(0)][0];
-    return apiResponse;
-  } else if (response.statusCode == 403) {
-    return showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            insetPadding: const EdgeInsets.only(top: 100, left: 20, right: 20),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)), //this right here
-            child: AccountVerification(userEmail: email),
-          );
-        });
-  } else {
-    apiResponse.error = somethingWentWrong;
+//     apiResponse.error = errors[errors.keys.elementAt(0)][0];
+//     return apiResponse;
+//   } else if (response.statusCode == 403) {
+//     return showDialog(
+//         barrierDismissible: false,
+//         context: context,
+//         builder: (BuildContext context) {
+//           return Dialog(
+//             insetPadding: const EdgeInsets.only(top: 100, left: 20, right: 20),
+//             shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(20.0)), //this right here
+//             child: AccountVerification(userEmail: email),
+//           );
+//         });
+//   } else {
+//     apiResponse.error = somethingWentWrong;
 
-    return apiResponse;
-  }
-}
+//     return apiResponse;
+//   }
+// }
 
 // Register
 Future<ApiResponse> register(String email, String password) async {

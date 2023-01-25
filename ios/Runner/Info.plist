@@ -3,6 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
+	  <string>To take user profile picture</string>
+      <key>NSCameraUsageDescription</key>
+      <string>To choose user profile picture</string>
+      <key>NSMicrophoneUsageDescription</key>
+      <string>Used to capture audio for image picker</string>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Myhoneypott</string>

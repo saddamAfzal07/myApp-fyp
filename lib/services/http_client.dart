@@ -3,7 +3,8 @@ import 'dart:io' as client;
 
 import 'package:http/http.dart' as http;
 import 'package:myhoneypott/constant/constant.dart';
-
+import 'package:myhoneypott/models/api_response.dart';
+import 'package:myhoneypott/models/delete_model.dart';
 
 class HttpClient {
   Future<String> postHttpRequest(
@@ -43,5 +44,20 @@ class HttpClient {
     } catch (e) {
       throw Exception(e);
     }
+  }
+
+  deleteExpense(int id) async {
+    String token = await ApiResponse().getToken();
+    var serviceURL = expenseURL;
+    var uri = Uri.parse("$serviceURL/$id");
+
+    // print(uri);
+    final http.Response response = await http.delete(
+      uri,
+      headers: {
+        client.HttpHeaders.acceptHeader: "application/json",
+        'Authorization': 'Bearer $token',
+      },
+    );
   }
 }

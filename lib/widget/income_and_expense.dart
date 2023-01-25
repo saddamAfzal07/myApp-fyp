@@ -4,11 +4,23 @@ import 'package:myhoneypott/constant/apis_expense.dart';
 import '../constant/app_colors.dart';
 import '../constant/app_text_styles.dart';
 
-class IncomeAndExpense extends StatelessWidget {
-  const IncomeAndExpense({
-    Key? key,
-  }) : super(key: key);
+class IncomeAndExpense extends StatefulWidget {
+  int expenseMonthSum;
+  int totalIncome;
+  int totalBalance;
+  IncomeAndExpense(
+      {Key? key,
+      required this.expenseMonthSum,
+      required this.totalBalance,
+      required this.totalIncome})
+      : super(key: key);
 
+  @override
+  State<IncomeAndExpense> createState() => _IncomeAndExpenseState();
+}
+
+class _IncomeAndExpenseState extends State<IncomeAndExpense> {
+  @override
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -33,7 +45,7 @@ class IncomeAndExpense extends StatelessWidget {
               ),
             ),
             TextSpan(
-              text: ExpenseCont.totalBalance.toString(),
+              text: widget.totalBalance.toString(),
               style: robotoBold.copyWith(
                 fontSize: 40.0,
                 color: Colors.lightGreen,
@@ -41,7 +53,7 @@ class IncomeAndExpense extends StatelessWidget {
             )
           ])),
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -59,7 +71,7 @@ class IncomeAndExpense extends StatelessWidget {
                       ),
                       const SizedBox(height: 4.0),
                       Text(
-                        'RM ${ExpenseCont.totalIncome}',
+                        'RM ${widget.totalIncome}',
                         style: robotoBold.copyWith(
                           fontSize: 20.0,
                           color: AppColors.whiteColor,
@@ -82,7 +94,7 @@ class IncomeAndExpense extends StatelessWidget {
                       ),
                       const SizedBox(height: 4.0),
                       Text(
-                        'RM ${int.parse(ExpenseCont.totalIncome.toString()) + int.parse(ExpenseCont.totalBalance.toString())}',
+                        'RM ${int.parse(widget.totalIncome.toString()) + int.parse(widget.totalBalance.toString())}',
                         style: robotoBold.copyWith(
                           fontSize: 20.0,
                           color: AppColors.whiteColor,

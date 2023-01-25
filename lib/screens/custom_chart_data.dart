@@ -36,7 +36,7 @@ class _CustomChartDataState extends State<CustomChartData> {
         builder: (BuildContext context,
             AsyncSnapshot<ExpensesModel> expenseSnapshot) {
           List<ExpenseData>? expenses = expenseSnapshot.data?.expense;
-
+          List<ExpenseData>? exp = [];
           // print(expenses);
           return expenses != null
               ? SizedBox(
@@ -52,10 +52,10 @@ class _CustomChartDataState extends State<CustomChartData> {
                           dataSource: expenses
                               .map<ExpenseData>(
                                 (e) =>
-                                    ExpenseData(date: e.date!, total: e.total!),
+                                    ExpenseData(date: e.date, total: e.total),
                               )
                               .toList(),
-                          color: AppColors.primaryColor,
+                          color: Colors.yellow,
                           xValueMapper: (ExpenseData sales, _) => sales.date,
                           yValueMapper: (ExpenseData sales, _) => sales.total,
                           markerSettings: const MarkerSettings(isVisible: true),
@@ -64,18 +64,44 @@ class _CustomChartDataState extends State<CustomChartData> {
                     ),
                   ),
                 )
-              : Center(
-                  child: SizedBox(
-                    height: 50,
-                    width: 50,
-                    child: CircularProgressIndicator(
-                      semanticsLabel: 'Retrieving JSON data',
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppColors.primaryColor),
-                      backgroundColor: Colors.grey[300],
-                    ),
+              :
+              // expenses == null
+              //     ?
+              SizedBox(
+                  width: width * 0.95,
+                  height: height * 0.35,
+                  child: SfCartesianChart(
+                    primaryXAxis: CategoryAxis(),
+                    legend: Legend(isVisible: false),
+                    tooltipBehavior: _tooltipBehavior,
+                    series: <LineSeries<ExpenseData, String>>[
+                      LineSeries<ExpenseData, String>(
+                        dataSource: exp
+                            .map<ExpenseData>(
+                              (e) => ExpenseData(date: "", total: 0),
+                            )
+                            .toList(),
+                        color: AppColors.primaryColor,
+                        xValueMapper: (ExpenseData sales, _) => sales.date,
+                        yValueMapper: (ExpenseData sales, _) => sales.total,
+                        markerSettings: const MarkerSettings(isVisible: true),
+                      )
+                    ],
                   ),
                 );
+
+          // : Center(
+          //     child: SizedBox(
+          //       height: 50,
+          //       width: 50,
+          //       child: CircularProgressIndicator(
+          //         semanticsLabel: 'Retrieving JSON data',
+          //         valueColor: const AlwaysStoppedAnimation<Color>(
+          //             AppColors.primaryColor),
+          //         backgroundColor: Colors.grey[300],
+          //       ),
+          //     ),
+          //   );
         });
   }
 }

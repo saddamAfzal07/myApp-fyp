@@ -38,7 +38,7 @@ class ExpensesModel {
 class Member {
   int? id;
   String? name;
-  int? mobile;
+  String? mobile;
   String? email;
   String? password;
   int? budgetMode;
@@ -128,7 +128,7 @@ class ExpensesAllMonth {
   String? formatted_date;
   int? total;
   String? description;
-  Category? category;
+  Categories? category;
 
   ExpensesAllMonth(
       {this.categoryId,
@@ -145,7 +145,7 @@ class ExpensesAllMonth {
     total = json['total'];
     description = json['description'];
     category = json['category'] != null
-        ? Category.fromJson(json['category'])
+        ? Categories.fromJson(json['category'])
         : category;
   }
 
@@ -163,13 +163,13 @@ class ExpensesAllMonth {
   }
 }
 
-class Category {
+class Categories {
   int? id;
   String? description;
 
-  Category({this.id, this.description});
+  Categories({this.id, this.description});
 
-  Category.fromJson(Map<String, dynamic> json) {
+  Categories.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     description = json['description'];
   }

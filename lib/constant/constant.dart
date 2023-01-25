@@ -2,15 +2,17 @@
 import 'package:flutter/material.dart';
 import 'package:myhoneypott/constant/app_colors.dart';
 
-
 const baseURL = 'https://www.myhoneypot.app/api';
 const loginURL = '$baseURL/login';
 const registerURL = '$baseURL/register';
 const logoutURL = '$baseURL/logout';
 const userURL = '$baseURL/user';
 const expenseURL = '$baseURL/expense';
+const dashboardURL = '$baseURL/dashboard';
 const categoryURL = '$baseURL/category-expenses';
 const budgetURL = '$baseURL/budget';
+const profileURL = '$baseURL/member';
+const profileUpdate = '$baseURL/member';
 
 // ----- Errors -----
 const serverError = 'Server error';

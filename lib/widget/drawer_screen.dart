@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:get/get.dart';
 import 'package:myhoneypott/constant/app_text_styles.dart';
+import 'package:myhoneypott/controller/theme_changer.dart';
 import 'package:myhoneypott/screens/auth/login.dart';
 import 'package:myhoneypott/screens/dashboard/dialogs/budget_dialog.dart';
 import 'package:myhoneypott/services/user_service.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constant/app_colors.dart';
 import '../screens/bottom_nav_bar.dart';
@@ -14,6 +18,7 @@ class DrawerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
+    final state = Provider.of<ThemeChanger>(context);
 
     return SafeArea(
       child: Column(
@@ -75,13 +80,43 @@ class DrawerScreen extends StatelessWidget {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Dark Mode"),
+                FlutterSwitch(
+                  height: 27.0,
+                  width: 55.0,
+                  padding: 5.0,
+                  toggleSize: 20.0,
+                  borderRadius: 15.0,
+                  activeColor: AppColors.primaryColor,
+                  value: state.radiovalue,
+                  onToggle: (value) {
+                    // setState(() {
+                    state.radiovalue = value;
+                    state.checkTheme(value);
+                    // });
+                  },
+                ),
+              ],
+            ),
+          ),
           InkWell(
-            onTap: () {
+            onTap: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setBool("login", true);
               logout().then((value) => {
                     Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (context) => const Login()),
                         (route) => false)
                   });
+
+              print("ggggg$prefs");
             },
             child: Padding(
               padding: const EdgeInsets.only(

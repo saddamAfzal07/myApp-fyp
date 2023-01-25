@@ -3,18 +3,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:myhoneypott/constant/apis_expense.dart';
-import 'package:myhoneypott/constant/constant.dart';
 import 'package:myhoneypott/models/expenses_model.dart';
 import 'package:myhoneypott/screens/add_expenses/add_expenses.dart';
+import 'package:myhoneypott/screens/budget/budget_scree.dart';
+import 'package:myhoneypott/screens/dashboard/dash2.dart';
 
 import 'package:myhoneypott/screens/dashboard/dashboard_screen.dart';
-import 'package:myhoneypott/screens/dashboard/dialogs/budget_dialog.dart';
+import 'package:myhoneypott/screens/expenses/components/expense_scr2.dart';
 import 'package:myhoneypott/screens/expenses/expenses_screen.dart';
-import 'package:myhoneypott/screens/settings_screen.dart';
+import 'package:myhoneypott/screens/new_dashboard/new_dashbaord_screen.dart';
+import 'package:myhoneypott/screens/user_profile/user_profile.dart';
 import 'package:myhoneypott/services/expenses_service.dart';
 import 'package:myhoneypott/widget/drawer_screen.dart';
-import 'package:myhoneypott/widget/income_and_expense.dart';
 
 import '../constant/app_colors.dart';
 import '../constant/app_icons.dart';
@@ -30,7 +30,12 @@ class BottomNavBar extends StatefulWidget {
 class _BottomNavBarState extends State<BottomNavBar> {
   int currentIndex = 0;
 
-  List<Widget> screens = [];
+  List<Widget> screens = [
+    // const DashBoardScreen(),
+    // const AddExpensesScreen(),
+    // const SettingScreen(),
+    // const SettingScreen(),
+  ];
 
   void nextScreen(int index) {
     setState(() {
@@ -48,78 +53,116 @@ class _BottomNavBarState extends State<BottomNavBar> {
   getExpenses() async {
     var json = await fetchMonthExpense();
 
-    uniqueDates.addAll(json.map((e) => e.formatted_date!));
+    if (json.isEmpty) {
+      print("enter into this part expense null");
+      setState(() {
+        _monthExpenses = [];
+        screens = [
+          // const Dash2(),
+          // const ExpenceScreen2(),
+          // const AddExpensesScreen(),
+          // const BudgetScreen(),
+          // const UserProfile(),
+          const NewDashBoardScreen(),
+          ExpensesScreen(
+            _monthExpenses,
+            uniqueMonths,
+          ),
+          const AddExpensesScreen(),
+          const BudgetScreen(),
+          const UserProfile(),
+        ];
+      });
+    } else {
+      print("Enter into new  dashboard part");
+      uniqueDates.addAll(json.map((e) => e.formatted_date!));
 
-    uniqueDates.toSet().toList();
+      uniqueDates.toSet().toList();
 
-    var uniques = <String, bool>{};
-    List<String> keys = [];
+      var uniques = <String, bool>{};
+      List<String> keys = [];
 
-    for (var s in uniqueDates) {
-      uniques[s] = true;
+      for (var s in uniqueDates) {
+        uniques[s] = true;
+      }
+
+      keys.addAll(uniques.keys);
+
+      List<int> total = [];
+
+      total.addAll(json.map((e) => e.total!));
+
+      int totalA = total.reduce((a, b) => a + b);
+
+      setState(() {
+        _monthExpenses = json;
+        uniqueDates = keys;
+        uniqueMonths = uniqueDates.map((e) => e.split(" ")[0]).toSet().toList();
+        totalAmount = value.format(totalA);
+
+        screens = [
+          // DashBoardScreen(
+          //   monthExpenses: _monthExpenses,
+          //   uniqueMonths: uniqueMonths,
+          // ),
+          const NewDashBoardScreen(),
+
+          ExpensesScreen(
+            _monthExpenses,
+            uniqueMonths,
+          ),
+          const AddExpensesScreen(),
+          const BudgetScreen(),
+          const UserProfile(),
+        ];
+      });
     }
-
-    keys.addAll(uniques.keys);
-
-    List<int> total = [];
-
-    total.addAll(json.map((e) => e.total!));
-
-    int totalA = total.reduce((a, b) => a + b);
-
-    setState(() {
-      _monthExpenses = json;
-      uniqueDates = keys;
-      uniqueMonths = uniqueDates.map((e) => e.split(" ")[0]).toSet().toList();
-      totalAmount = value.format(totalA);
-
-      screens = [
-        DashBoardScreen(
-          monthExpenses: _monthExpenses,
-          uniqueMonths: uniqueMonths,
-        ),
-        ExpensesScreen(
-          monthExpenses: _monthExpenses,
-          uniqueMonths: uniqueMonths,
-        ),
-        const AddExpensesScreen(),
-        const SettingScreen(),
-        const SettingScreen(),
-      ];
-    });
   }
 
   @override
   void initState() {
     super.initState();
     getExpenses();
-    expenceCount();
+    print("enter into get expenses");
+    // expenceCount();
+    // Count();
   }
 
-  expenceCount() async {
-    var token = ExpenseCont.token;
-    var response = await http.get(Uri.parse(expenseURL), headers: {
-      'Authorization': 'Bearer $token',
-    });
-    print(response.body);
+  // static int expenseMonthSum = 0;
+  // static int totalIncome = 0;
+  // static int totalBalance = 0;
+  // expenceCount() async {
+  //   String token = await ApiResponse().getToken();
+  //   var response = await http.get(Uri.parse(expenseURL), headers: {
+  //     'Authorization': 'Bearer $token',
+  //   });
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> responsedata = jsonDecode(response.body);
-      if (responsedata["totalIncome"] == 0) {
-        Get.dialog(
-          const BudgetDialog(),
-        );
-      } else {}
+  //   if (response.statusCode == 200) {
+  //     Map<String, dynamic> responsedata = jsonDecode(response.body);
+  //     if (responsedata["totalIncome"] == 0) {
+  //       Get.dialog(
+  //         const BudgetDialog(),
+  //       );
+  //     } else {}
 
-      setState(() {
-        ExpenseCont.expenseMonthSum = responsedata["expenseMonthSum"];
-        ExpenseCont.totalBalance = responsedata["totalBalance"];
-        ExpenseCont.totalIncome = responsedata["totalIncome"];
-      });
-    } else {
-      print("not found");
-    }
-  }
+  //     setState(() {
+  //       // expenseMonthSum = responsedata["expenseMonthSum"];
+  //       // totalBalance = responsedata["totalBalance"];
+  //       // totalIncome = responsedata["totalIncome"];
+  //       ExpenseCont.expenseMonthSum = responsedata["expenseMonthSum"];
+  //       ExpenseCont.totalBalance = responsedata["totalBalance"];
+  //       ExpenseCont.totalIncome = responsedata["totalIncome"];
+  //     });
+  //     print(ExpenseCont.expenseMonthSum);
+  //     print(ExpenseCont.totalBalance);
+
+  //     print(ExpenseCont.totalIncome);
+
+  //     setState(() {});
+  //   } else {
+  //     print("not found");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -236,8 +279,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       SizedBox(height: height * 0.024),
-                      const IncomeAndExpense(),
-                      SizedBox(height: height * 0.024),
+                      // IncomeAndExpense(
+                      // expenseMonthSum: expenseMonthSum,
+                      // totalBalance: totalBalance,
+                      // totalIncome: totalIncome,
+                      // ),
+                      // SizedBox(height: height * 0.024),
                       screens[currentIndex],
                     ],
                   ),

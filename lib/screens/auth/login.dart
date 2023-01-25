@@ -1,11 +1,18 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:myhoneypott/constant/app_text_styles.dart';
+import 'package:myhoneypott/constant/user_id.dart';
+import 'package:myhoneypott/initial_setup_screen.dart';
 import 'package:myhoneypott/models/api_response.dart';
 import 'package:myhoneypott/models/user.dart';
 import 'package:myhoneypott/screens/auth/forgot/forgot_password_screen.dart';
 import 'package:myhoneypott/screens/bottom_nav_bar.dart';
+import 'package:myhoneypott/screens/logindialogues/error_dialouge.dart';
+import 'package:myhoneypott/screens/logindialogues/login_dialogue.dart';
 import 'package:myhoneypott/services/user_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,19 +33,111 @@ class LoginState extends State<Login> {
   TextEditingController txtEmail = TextEditingController(),
       txtPassword = TextEditingController();
   bool loading = false;
+  SharedPreferences? loginData;
+  String? initialSetup = "1";
+  void login(email, password) async {
+    loginData = await SharedPreferences.getInstance();
+    print("call api");
+    print(email + password);
+    final response = await http
+        .post(Uri.parse("https://www.myhoneypot.app/api/login"), headers: {
+      'Accept': 'application/json',
+      'Charset': 'utf-8'
+    }, body: {
+      'email': email,
+      'password': password,
+    });
 
-  void _loginUser() async {
-    ApiResponse response =
-        await login(context, txtEmail.text, txtPassword.text);
+    setState(() {
+      loading = false;
+    });
+    // print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      print("response===>>>>" + response.body);
 
-    if (response.error == null) {
-      _saveAndRedirectToBottomNavBar(response.data as User);
+      UserID.id = responseData["member"]["id"].toString();
+      UserID.token = responseData["token"].toString();
+
+      initialSetup = responseData["member"]["initial_setup"].toString();
+      print("initial Setup" + initialSetup.toString());
+
+      if (initialSetup == "0") {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const InitialSetupScreen()),
+            (route) => false);
+      } else {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const BottomNavBar()),
+            (route) => false);
+      }
+
+      loginData!.setBool("login", false);
+      loginData!.setString("username", email);
+      loginData!.setString("password", password);
+    } else if (response.statusCode == 422) {
+      print(response.statusCode);
+      Map<String, dynamic> responsedata = jsonDecode(response.body);
+
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              insetPadding:
+                  const EdgeInsets.only(top: 100, left: 20, right: 20),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)), //this right here
+              child: ErrorAccountdialogue(
+                  title: responsedata["title"],
+                  message: responsedata["message"]),
+            );
+          });
+    } else if (response.statusCode == 403) {
+      print(response.statusCode);
+      Map<String, dynamic> responsedata = jsonDecode(response.body);
+
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) {
+            return Dialog(
+              insetPadding:
+                  const EdgeInsets.only(top: 100, left: 20, right: 20),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)), //this right here
+              child: ErrorAccountdialogue(
+                title: responsedata["title"],
+                message: responsedata["message"],
+              ),
+            );
+          });
     } else {
-      setState(() {
-        loading = false;
-      });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('${response.error}')));
+      // _saveAndRedirectToBottomNavBar(response as User);
+      print("Else Condition");
+      Map<String, dynamic> responsedata = jsonDecode(response.body);
+      print(responsedata["title"]);
+      print(responsedata["message"]);
+      print(response.statusCode);
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            insetPadding: const EdgeInsets.only(top: 100, left: 20, right: 20),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)), //this right here
+            child: ErrorAccountdialogue(
+              title: responsedata["title"] == null
+                  ? "Error"
+                  : responsedata["title"],
+              message: responsedata["message"] == null
+                  ? "Something went wrong"
+                  : responsedata["message"],
+            ),
+          );
+        },
+      );
     }
   }
 
@@ -49,6 +148,23 @@ class LoginState extends State<Login> {
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const BottomNavBar()),
         (route) => false);
+  }
+
+  
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    txtEmail.dispose();
+    txtPassword.dispose();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+   
   }
 
   @override
@@ -109,7 +225,7 @@ class LoginState extends State<Login> {
                         if (formkey.currentState!.validate()) {
                           setState(() {
                             loading = true;
-                            _loginUser();
+                            login(txtEmail.text, txtPassword.text);
                           });
                         }
                       }),
